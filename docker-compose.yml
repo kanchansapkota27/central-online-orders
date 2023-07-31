@@ -40,15 +40,6 @@ services:
         depends_on:
             - backend
             - redis
-    # nginx:
-    #         build:
-    #             context: .
-    #             dockerfile: dockers/nginx/Dockerfile
-    #         ports:
-    #             - "3000:80"  # Map port 3000 on the host to port 80 on the frontend container
-    #         depends_on:
-    #             - frontend
-    #             - backend
     redis:
         restart: unless-stopped
         image: redis:7.0.5-alpine 
@@ -59,10 +50,6 @@ services:
         restart: unless-stopped
         volumes:
             - postgres_data:/var/lib/postgresql/data/
-        # environment:
-        #     POSTGRES_DB: postgres
-        #     POSTGRES_USER: postgres
-        #     POSTGRES_PASSWORD: postgres
         env_file:
             - envs/db.env
         expose:

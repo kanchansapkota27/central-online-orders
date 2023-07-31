@@ -56,3 +56,6 @@ Note: This project was made for personal use and for a specific use case only. A
 ![Dash](/assets/screenshots/Dashboard.png)
 
 
+#### Possible Future Steps [Not Sure]
+- Add html files that comes in the mail as a file type and store it so one can cross check and verify proper parsing
+- Add a link in the UI under name `Invoice` that show that html file in a pop-up for new tab

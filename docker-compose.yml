@@ -1,0 +1,73 @@
+version: '2'
+
+services:
+    frontend:
+        build:
+          context: .
+          dockerfile: ./docker/frontend/Dockerfile
+        volumes:
+          - ./frontend:/app
+          - static_volume:/static
+        ports:
+          - 80:80
+        # environment:
+        #   - WDS_SOCKET_PORT=0
+        depends_on:
+          - backend
+    backend:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: /app/docker/backend/server-entrypoint.sh
+        volumes:
+            - static_volume:/app/backend/django_static
+        # ports:
+        #     - 8000:8000     
+        env_file:
+            - envs/backend.env
+
+    worker:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/backend/Dockerfile
+        entrypoint: ["python","/app/backend/manage.py","run_huey"]
+        volumes:
+            - static_volume:/app/backend/django_static
+        env_file:
+            - envs/backend.env
+        depends_on:
+            - backend
+            - redis
+    # nginx:
+    #         build:
+    #             context: .
+    #             dockerfile: dockers/nginx/Dockerfile
+    #         ports:
+    #             - "3000:80"  # Map port 3000 on the host to port 80 on the frontend container
+    #         depends_on:
+    #             - frontend
+    #             - backend
+    redis:
+        restart: unless-stopped
+        image: redis:7.0.5-alpine 
+        expose:
+            - 6379
+    db:
+        image: postgres:13.0-alpine
+        restart: unless-stopped
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        # environment:
+        #     POSTGRES_DB: postgres
+        #     POSTGRES_USER: postgres
+        #     POSTGRES_PASSWORD: postgres
+        env_file:
+            - envs/db.env
+        expose:
+            - 5432
+    
+volumes:
+    static_volume: {}
+    postgres_data: {}

@@ -18,6 +18,9 @@ class Command(BaseCommand):
         datetoday = datetime.today().date()
         if args_date:
             datetoday = datetime.strptime(args_date, "%Y-%m-%d").date()
+        self.stdout.write(
+                self.style.INFO(f"Started for date {datetoday}")
+            )
 
         with MailBox(settings.ORDERS_IMAP_SERVER).login(
             settings.ORDERS_EMAIL_ID, settings.ORDERS_EMAIL_PASSWORD

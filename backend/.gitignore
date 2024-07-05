@@ -2,3 +2,5 @@
 *.bat
 __pycache__/
 .vscode
+test.py
+test*.py

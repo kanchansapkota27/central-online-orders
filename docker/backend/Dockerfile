@@ -1,4 +1,4 @@
-FROM python:3.8.15-alpine
+FROM python:3.12.0a1-alpine
 
 RUN apk add --no-cache build-base linux-headers gcc libffi-dev python3-dev
 WORKDIR /app

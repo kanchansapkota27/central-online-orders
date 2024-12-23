@@ -36,19 +36,19 @@ def sales_summary(request):
     # Get totals
     total_orders = Order.objects.count()
     total_sales = Order.objects.aggregate(total=Sum("order_total"))["total"]
-    total_sales=round(total_sales,2)
+    total_sales=round(total_sales or 0.00,2)
     
     # Get yesterday totals
     yesterday_orders = Order.objects.filter(pickup_date=yesterday)
     yesterday_orders_count = yesterday_orders.count()
     yesterday_sales = yesterday_orders.aggregate(total=Sum("order_total"))["total"] or 0
-    yesterday_sales=round(yesterday_sales,2)
+    yesterday_sales=round(yesterday_sales or 0.00,2)
 
     # Get today totals
     today_orders = Order.objects.filter(pickup_date=today)
     today_orders_count = today_orders.count()
     today_sales = today_orders.aggregate(total=Sum("order_total"))["total"] or 0
-    today_sales=round(today_sales,2)
+    today_sales=round(today_sales or 0.00,2)
 
     # Calculate differences
     orders_diff = today_orders_count - yesterday_orders_count
@@ -136,7 +136,13 @@ def get_live_orders(request):
     ) as mailbox:
         all_orders_today = []
         for msg in mailbox.fetch(AND(subject="Bill Invoice"), reverse=True):
-            orders = parse_mail_html(msg.html)
+            html=msg.html
+            attachments=msg.attachments
+            for attach in attachments:
+                if 'invoice' in attach.filename.lower():
+                    html=str(attach.payload)
+                    break
+            orders = parse_mail_html(html)
             order_obj, _ = Order.objects.update_or_create(
                 order_no=orders.order_no,
                 defaults={

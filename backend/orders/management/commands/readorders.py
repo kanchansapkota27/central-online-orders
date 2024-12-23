@@ -19,7 +19,7 @@ class Command(BaseCommand):
         if args_date:
             datetoday = datetime.strptime(args_date, "%Y-%m-%d").date()
         self.stdout.write(
-                self.style.INFO(f"Started for date {datetoday}")
+                self.style.NOTICE(f"Started for date {datetoday}")
             )
 
         with MailBox(settings.ORDERS_IMAP_SERVER).login(
@@ -29,7 +29,13 @@ class Command(BaseCommand):
             for msg in mailbox.fetch(
                 AND(subject="Bill Invoice", date=datetoday), reverse=True
             ):
-                orders = parse_mail_html(msg.html)
+                html=msg.html
+                attachments=msg.attachments
+                for attach in attachments:
+                    if 'invoice' in attach.filename.lower():
+                        html=str(attach.payload)
+                        break
+                orders = parse_mail_html(html)
                 order_obj, created = Order.objects.update_or_create(
                     order_no=orders.order_no,
                     defaults={
